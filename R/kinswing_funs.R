@@ -20,7 +20,7 @@
 #' @return A list containing the annotated dataframe, the scores list resulting
 #'   from the `scoreSequences()` function, and the swing scores dataframe
 #'   resulting from the `swing()` function.
-#' @export
+#' @export kinswing
 kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
   
   # call the PSP database according to organism
@@ -133,7 +133,7 @@ kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
 #'   from ProteoMarker.
 #'
 #' @return A ggplot2 object.
-#' @export
+#' @export kinswing_plot
 kinswing_plot <- function(ks_list, coefs){
   
   # get df to plot depending on starting list
@@ -219,7 +219,7 @@ kinswing_plot <- function(ks_list, coefs){
 #'
 #' @return A list of dataframe(s) with the predicted phosphopeptide-kinase
 #'   relationships per comparison.
-#' @export
+#' @export kinswing_datable
 kinswing_datable <- function(ks_list){
   # extracts kinswing result table
   

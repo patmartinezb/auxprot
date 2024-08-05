@@ -11,18 +11,25 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     BiocParallel,
+    clusterProfiler,
+    ComplexHeatmap,
     dplyr,
+    dynamicTreeCut,
     feathers,
     ggplot2,
+    ggpubr,
     ggrepel,
     hrbrthemes,
     KinSwingR,
     limma,
     magrittr,
+    pheatmap,
     purrr,
     readr,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    tidyselect,
+    WGCNA
 URL: https://github.com/patmartinezb/auxprot
 BugReports: https://github.com/patmartinezb/auxprot/issues
