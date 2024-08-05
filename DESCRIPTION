@@ -1,0 +1,28 @@
+Package: auxprot
+Title: Wrapper functions for proteomic analysis
+Version: 0.0.0.9000
+Authors@R: 
+    person("Patricia", "Martínez-Botía", , "patricia.martinez@ispasturias.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9778-5945"))
+Description: Collection of wrapper functions to perform start-to-end proteomic analyses. 
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    BiocParallel,
+    dplyr,
+    feathers,
+    ggplot2,
+    ggrepel,
+    hrbrthemes,
+    KinSwingR,
+    limma,
+    magrittr,
+    purrr,
+    readr,
+    stringr,
+    tibble,
+    tidyr
+URL: https://github.com/patmartinezb/auxprot
+BugReports: https://github.com/patmartinezb/auxprot/issues
