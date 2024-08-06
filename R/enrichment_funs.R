@@ -1,13 +1,19 @@
 #' Wrapper function for GO enrichment
-#' 
-#' @description
-#' `enrich_prot()` is a wrapper function for both `{clusterProfile}`'s `enrichGO()` and `gseGO()` functions. It performs enrichment analysis (either GO or GSEA) of all ontologies (CC, BP and MF).
-#' 
 #'
-#' @param de Input character vector. Vector of proteins that are going to be fed to the enrichment analysis. UNIPROT ids are mandatory.
-#' @param universe Input character vector with the background proteins, only for GO analysis. UNIPROT ids are mandatory.
+#' @description `enrich_prot()` is a wrapper function for both
+#' `{clusterProfile}`'s `enrichGO()` and `gseGO()` functions. It performs
+#' enrichment analysis (either GO or GSEA) of all ontologies (CC, BP and MF).
+#'
+#'
+#' @param de Input character vector. If GO enrichment, a vector of proteins that
+#'   are going to be fed to the enrichment analysis, and UNIPROT ids are
+#'   mandatory. If GSEA, a named numeric, ranked protein vector: fold change
+#'   sorted in decreasing order, and names with ENTREZID.
+#' @param universe Input character vector with the background proteins, only for
+#'   GO analysis. UNIPROT ids are mandatory.
 #' @param org Character vector of length 1. Either 'human' or 'mouse'.
-#' @param type.enrich Character vector of length 1. Either 'go' (default) or 'gsea'.
+#' @param type.enrich Character vector of length 1. Either 'go' (default) or
+#'   'gsea'.
 #'
 #' @return A list of lists, with the results from the enrichent.
 #' @export enrich_prot
@@ -56,7 +62,6 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
     
     gsea.cc <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
-                                      keyType      = 'UNIPROT',
                                       ont          = "CC",
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
@@ -66,7 +71,6 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
     
     gsea.bp <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
-                                      keyType      = 'UNIPROT',
                                       ont          = "BP",
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
@@ -75,7 +79,6 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
     
     gsea.mf <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
-                                      keyType      = 'UNIPROT',
                                       ont          = "MF",
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
