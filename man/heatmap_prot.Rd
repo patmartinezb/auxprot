@@ -16,9 +16,11 @@ that are going to be}
 
 \item{z.score}{Input boolean vector. Default is FALSE. Performs z score.}
 
-\item{cutrow}{Input numeric vector. Indicates the k groups or clusters that the row dendrogram should be divided into.}
+\item{cutrow}{Input numeric vector. Indicates the k groups or clusters that
+the row dendrogram should be divided into.}
 
-\item{cutcol}{Input numeric vector. Indicates the k groups or clusters that the column dendrogram should be divided into.}
+\item{cutcol}{Input numeric vector. Indicates the k groups or clusters that
+the column dendrogram should be divided into.}
 }
 \value{
 A pheatmap object.

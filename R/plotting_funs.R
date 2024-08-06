@@ -52,7 +52,7 @@ volcano_prot <- function(df, var, anno){
 #' Plots heatmap with color-coded annotation.
 #'
 #' @description `heatmap_prot()` plots a heatmap with extra annotation in the
-#' form of colors. Wrapper for `pheatmap()`.
+#'   form of colors. Wrapper for `pheatmap()`.
 #'
 #'
 #' @param df Input dataframe. Data matrix.
@@ -60,8 +60,10 @@ volcano_prot <- function(df, var, anno){
 #' @param vars Input character vector of length >= 1. Indicates the variables
 #'   that are going to be
 #' @param z.score Input boolean vector. Default is FALSE. Performs z score.
-#' @param cutrow Input numeric vector. Indicates the k groups or clusters that the row dendrogram should be divided into.
-#' @param cutcol Input numeric vector. Indicates the k groups or clusters that the column dendrogram should be divided into.
+#' @param cutrow Input numeric vector. Indicates the k groups or clusters that
+#'   the row dendrogram should be divided into.
+#' @param cutcol Input numeric vector. Indicates the k groups or clusters that
+#'   the column dendrogram should be divided into.
 #'
 #' @return A pheatmap object.
 #' @export heatmap_prot

@@ -23,6 +23,8 @@ Imports:
     KinSwingR,
     limma,
     magrittr,
+    org.Hs.eg.db,
+    org.Mm.eg.db,
     pheatmap,
     purrr,
     readr,
