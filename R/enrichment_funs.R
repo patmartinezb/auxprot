@@ -54,7 +54,7 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
     
   } else {
     
-    gsea.cc <- clusterProfiler::gseGO(geneList = protlist,
+    gsea.cc <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
                                       keyType      = 'UNIPROT',
                                       ont          = "CC",
@@ -64,7 +64,7 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
                                       verbose      = FALSE)
     
     
-    gsea.bp <- clusterProfiler::gseGO(geneList = protlist,
+    gsea.bp <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
                                       keyType      = 'UNIPROT',
                                       ont          = "BP",
@@ -73,7 +73,7 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
                                       pvalueCutoff = 0.05,
                                       verbose      = FALSE)
     
-    gsea.mf <- clusterProfiler::gseGO(geneList = protlist,
+    gsea.mf <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
                                       keyType      = 'UNIPROT',
                                       ont          = "MF",
