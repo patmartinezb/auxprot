@@ -63,8 +63,8 @@ select_cluster <- function(hc, k = NULL, df){
       dplyr::filter(Protein.IDs %in% cluster.n) %>% 
       tibble::as_tibble()
     
-    cl.list <- cl
-    names(cl.list) <- paste0("cluster", i)
+    cl.list[[i]] <- cl
+    names(cl.list)[i] <- paste0("cluster", i)
     
   }
   
