@@ -89,7 +89,7 @@ select_cluster <- function(hc, k = NULL, df){
 #' @export cluster_plot
 cluster_plot <- function(df, meta, hc, k){
   
-  if ((length(k) > 1) | (length(clust) < 1)){
+  if ((length(k) > 1) | (length(k) < 1)){
     stop("`k` should be a numeric vector of length 1.")
   }
   
