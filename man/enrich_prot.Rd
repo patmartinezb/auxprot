@@ -7,17 +7,24 @@
 enrich_prot(de, universe, org, type.enrich = "go")
 }
 \arguments{
-\item{de}{Input character vector. Vector of proteins that are going to be fed to the enrichment analysis. UNIPROT ids are mandatory.}
+\item{de}{Input character vector. If GO enrichment, a vector of proteins that
+are going to be fed to the enrichment analysis, and UNIPROT ids are
+mandatory. If GSEA, a named numeric, ranked protein vector: fold change
+sorted in decreasing order, and names with ENTREZID.}
 
-\item{universe}{Input character vector with the background proteins, only for GO analysis. UNIPROT ids are mandatory.}
+\item{universe}{Input character vector with the background proteins, only for
+GO analysis. UNIPROT ids are mandatory.}
 
 \item{org}{Character vector of length 1. Either 'human' or 'mouse'.}
 
-\item{type.enrich}{Character vector of length 1. Either 'go' (default) or 'gsea'.}
+\item{type.enrich}{Character vector of length 1. Either 'go' (default) or
+'gsea'.}
 }
 \value{
 A list of lists, with the results from the enrichent.
 }
 \description{
-\code{enrich_prot()} is a wrapper function for both \code{{clusterProfile}}'s \code{enrichGO()} and \code{gseGO()} functions. It performs enrichment analysis (either GO or GSEA) of all ontologies (CC, BP and MF).
+\code{enrich_prot()} is a wrapper function for both
+\code{{clusterProfile}}'s \code{enrichGO()} and \code{gseGO()} functions. It performs
+enrichment analysis (either GO or GSEA) of all ontologies (CC, BP and MF).
 }

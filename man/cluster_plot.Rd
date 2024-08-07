@@ -4,7 +4,7 @@
 \alias{cluster_plot}
 \title{Plots cluster profile.}
 \usage{
-cluster_plot(df, meta, hc, clust)
+cluster_plot(df, meta, hc, k)
 }
 \arguments{
 \item{df}{Input dataframe. Raw data matrix, with protein ids and sample
@@ -15,7 +15,7 @@ abundances.}
 \item{hc}{An object of class "hclust" created with the \code{dend_calc()}
 function.}
 
-\item{clust}{Numeric vector of length 1, refers to the cluster number.}
+\item{k}{Number of clusters.}
 }
 \value{
 A ggplot2 object.
