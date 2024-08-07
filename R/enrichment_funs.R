@@ -69,8 +69,7 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
                                       pvalueCutoff = 0.05,
-                                      verbose      = FALSE,
-                                      readable = TRUE)
+                                      verbose      = FALSE)
     
     
     gsea.bp <- clusterProfiler::gseGO(geneList = de,
@@ -79,8 +78,7 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
                                       pvalueCutoff = 0.05,
-                                      verbose      = FALSE,
-                                      readable = TRUE)
+                                      verbose      = FALSE)
     
     gsea.mf <- clusterProfiler::gseGO(geneList = de,
                                       OrgDb        = org,
@@ -88,12 +86,11 @@ enrich_prot <- function(de, universe, org, type.enrich = "go"){
                                       minGSSize    = 100,
                                       maxGSSize    = 500,
                                       pvalueCutoff = 0.05,
-                                      verbose      = FALSE,
-                                      readable = TRUE)
+                                      verbose      = FALSE)
     
-    gsea.list <- list(gsea.cc = gsea.cc,
-                      gsea.bp = gsea.bp,
-                      gsea.mf = gsea.mf)
+    gsea.list <- list(gsea.cc = clusterProfiler::setReadable(gsea.cc, org),
+                      gsea.bp = clusterProfiler::setReadable(gsea.bp, org),
+                      gsea.mf = clusterProfiler::setReadable(gsea.mf, org))
     
     return(gsea.list)
     
