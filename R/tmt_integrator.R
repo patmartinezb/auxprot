@@ -1,10 +1,11 @@
 #' FragPipe's TMT Integrator wrapper
 #'
 #' @description `tmt_integrator()` mimics the FragPipe's TMT Integrator module
-#' filters for TMT data, minus de PSM normalization. This includes purity and
-#' peptide probability filters, as well as a minimum summed MS2 intensity,
-#' presence of TMT and, optionally, PTM labeling. It summarises PSM information
-#' to the peptide and subsequent protein level, for further analysis.
+#'   filters for TMT data, minus de PSM normalization. This includes purity and
+#'   peptide probability filters, as well as a minimum summed MS2 intensity,
+#'   presence of TMT and, optionally, PTM labeling. It summarises PSM
+#'   information to the peptide and subsequent protein level, for further
+#'   analysis.
 #'
 #'
 #' @param psm Input FragPipe data matrix at the PSM level.
@@ -14,10 +15,13 @@
 #' @param tmt Input vector of length 1. Indicates the type of TMT used, either
 #'   `tmt` or `tmtpro`.
 #' @param purity_thr Numeric vector of length 1. Indicates purity threshold.
+#'   Default is 0.5 (50%).
 #' @param pep_prob_thr Numeric vector of length 1. Indicates peptide probability
-#'   threshold.
+#'   threshold. Default is 0.9.
 #' @param sum_ms2_int_thr Numeric vector of length 1. Indicates the percentage
-#'   of MS2 intensity below which PSMs are going to be filtered out.
+#'   of MS2 intensity below which PSMs are going to be filtered out. Default is
+#'   0.05 (5%). For PTM data, such as phosphorylation, it should be 0.025
+#'   (2.5%).
 #'
 #' @return A list containing both peptide and protein level information
 #' @export tmt_integrator
