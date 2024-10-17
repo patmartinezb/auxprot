@@ -80,7 +80,7 @@ wgcna_prot <- function(df,
                                   verbose = 0)
   
   # Plot the results
-  sft_pwr_fig <- sft_power_fig(sft)
+  sft_pwr_fig <- sft_power_fig(sft, RCutoff)
   
   # Get the soft power
   softPower <- sft$powerEstimate
