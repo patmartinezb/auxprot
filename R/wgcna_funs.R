@@ -191,10 +191,15 @@ wgcna_prot <- function(df,
   # Separate results by modules, order by kME, hub proteins on top
   dat.res <- data.frame(allDat, moduleColors , kmes)
   
+  if ("grey" %in% moduleColors){
+    cols <- moduleColors[-which(moduleColors == "grey")]
+  }
+  
+  
   list.clusters <- list()
-  for (i in 1:length(levels(as.factor(moduleColors)))){
+  for (i in 1:length(levels(as.factor(cols)))){
     
-    col <- levels(as.factor(moduleColors))[i]
+    col <- levels(as.factor(cols))[i]
     
     id <- paste0("kME", col)
     
