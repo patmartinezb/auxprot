@@ -193,6 +193,8 @@ wgcna_prot <- function(df,
   
   if ("grey" %in% moduleColors){
     cols <- moduleColors[-which(moduleColors == "grey")]
+  } else {
+    cols <- moduleColors
   }
   
   
