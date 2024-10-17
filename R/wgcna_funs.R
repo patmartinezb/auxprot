@@ -265,7 +265,7 @@ wgcna_prot <- function(df,
 
 ## Plotting functions for wgcna
 
-sft_power_fig <- function(sft){
+sft_power_fig <- function(sft, RCutoff){
   
   # Scale-free topology fit index as a function of the soft-thresholding power
   p1 <- sft$fitIndices %>%
