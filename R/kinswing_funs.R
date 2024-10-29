@@ -30,7 +30,7 @@ kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
     
   } else {
     
-    psp <- as.matrix(readr::read_rds("D:/PhD/Proteomics/MS_data_PLATONIC/phospho_DBs/PPS_KIN_SUB_mouse_kinswing.rds"))
+    psp <- as.matrix(readr::read_rds("C:/Users/Patricia.Martinez/Documents/HEvolution/Databases/phospho_DBs/PPS_KIN_SUB_mouse_kinswing.rds"))
 
     psp[,1] <- make.names(psp[,1]) # some kinases are composed of two names separated by a blank space, and if not corrected, the process crashes
     
