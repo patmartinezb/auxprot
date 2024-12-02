@@ -1,17 +1,20 @@
 #' Main KinSwing function
 #'
-#' @description
-#' `kinswing()` runs the four main functions of KinSwing (`buildPWM()`,
-#' `scoreSequences()`, `scoreSequences()` and `swing()`) in sequential order,
-#' starting with importing the PSP database, creating the annotation dataframe,
-#' and running the `topTable()` function from `{limma}` to generate the logFC
-#' and p values from all phosphopeptides and comparisons of interest.
+#' @description `kinswing()` runs the four main functions of KinSwing
+#' (`buildPWM()`, `scoreSequences()`, `scoreSequences()` and `swing()`) in
+#' sequential order, starting with importing the PSP database, creating the
+#' annotation dataframe, and running the `topTable()` function from `{limma}` to
+#' generate the logFC and p values from all phosphopeptides and comparisons of
+#' interest.
 #'
 #' @param phospho_raw Input dataframe. Raw phosphoproteomic dataframe.
 #' @param coefs Input vector. A character vector created with `transform_comp()`
 #'   from ProteoMarker.
 #' @param fit2 Input list. A list resulting from the last step of `{limma}`
 #'   pipeline.
+#' @param lev Input character vector of length 1. Indicates at what level the
+#'   filtering must be done, either by P value or by adjusted P value. Options
+#'   are "pval" (default) or "fdr".
 #' @param org Input vector. Character vector of length 1. Refers to the
 #'   organism, either "human" or "mouse".
 #' @param Protein.IDs Input vector. Character vector of length equivalent to the
@@ -21,7 +24,7 @@
 #'   from the `scoreSequences()` function, and the swing scores dataframe
 #'   resulting from the `swing()` function.
 #' @export kinswing
-kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
+kinswing <- function(phospho_raw, coefs, fit2, level = "pval", org, Protein.IDs){
   
   # call the PSP database according to organism
   if(org == "human"){
@@ -52,6 +55,12 @@ kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
                   Positions.within.proteins = readr::parse_number(Positions.within.proteins),
                   Protein = stringr::str_extract(Protein.IDs, "[^_]+"))
   
+  # Extract level
+  lev <- switch(level,
+                "pval" = "P.Value",
+                "fdr" = "adj.P.Val")
+  
+  
   listy <- list()
   n = 100
   
@@ -65,7 +74,7 @@ kinswing <- function(phospho_raw, coefs, fit2, org, Protein.IDs){
                                       coef = coeff, 
                                       number = Inf, 
                                       genelist = as.data.frame(Protein.IDs)) %>% 
-      dplyr::filter(P.Value < .05) %>%
+      dplyr::filter(.data[[lev]] < .05) %>%
       # dplyr::rename(PPS = anno) %>% 
       dplyr::left_join(annotation, by = "Protein.IDs") %>% 
       dplyr::select(Protein.IDs,
