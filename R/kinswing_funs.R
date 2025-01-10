@@ -12,7 +12,7 @@
 #'   from ProteoMarker.
 #' @param fit2 Input list. A list resulting from the last step of `{limma}`
 #'   pipeline.
-#' @param lev Input character vector of length 1. Indicates at what level the
+#' @param level Input character vector of length 1. Indicates at what level the
 #'   filtering must be done, either by P value or by adjusted P value. Options
 #'   are "pval" (default) or "fdr".
 #' @param org Input vector. Character vector of length 1. Refers to the

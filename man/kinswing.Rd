@@ -4,7 +4,7 @@
 \alias{kinswing}
 \title{Main KinSwing function}
 \usage{
-kinswing(phospho_raw, coefs, fit2, org, Protein.IDs)
+kinswing(phospho_raw, coefs, fit2, level = "pval", org, Protein.IDs)
 }
 \arguments{
 \item{phospho_raw}{Input dataframe. Raw phosphoproteomic dataframe.}
@@ -14,6 +14,10 @@ from ProteoMarker.}
 
 \item{fit2}{Input list. A list resulting from the last step of \code{{limma}}
 pipeline.}
+
+\item{level}{Input character vector of length 1. Indicates at what level the
+filtering must be done, either by P value or by adjusted P value. Options
+are "pval" (default) or "fdr".}
 
 \item{org}{Input vector. Character vector of length 1. Refers to the
 organism, either "human" or "mouse".}
@@ -27,9 +31,10 @@ from the \code{scoreSequences()} function, and the swing scores dataframe
 resulting from the \code{swing()} function.
 }
 \description{
-\code{kinswing()} runs the four main functions of KinSwing (\code{buildPWM()},
-\code{scoreSequences()}, \code{scoreSequences()} and \code{swing()}) in sequential order,
-starting with importing the PSP database, creating the annotation dataframe,
-and running the \code{topTable()} function from \code{{limma}} to generate the logFC
-and p values from all phosphopeptides and comparisons of interest.
+\code{kinswing()} runs the four main functions of KinSwing
+(\code{buildPWM()}, \code{scoreSequences()}, \code{scoreSequences()} and \code{swing()}) in
+sequential order, starting with importing the PSP database, creating the
+annotation dataframe, and running the \code{topTable()} function from \code{{limma}} to
+generate the logFC and p values from all phosphopeptides and comparisons of
+interest.
 }
