@@ -40,3 +40,6 @@ Imports:
     WGCNA
 URL: https://github.com/patmartinezb/auxprot
 BugReports: https://github.com/patmartinezb/auxprot/issues
+Depends: 
+    R (>= 2.10)
+LazyData: true
