@@ -150,7 +150,7 @@ prep_hyp_df <- function(hyp_obj){
     
   }
   
-  enrich_plot <- bind_rows(enrich_plot)
+  enrich_plot <- dplyr::bind_rows(enrich_plot)
   
   return(enrich_plot)
   
