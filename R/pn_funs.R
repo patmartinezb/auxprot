@@ -10,18 +10,24 @@
 #'@param df Original dataframe from where `bio_list` comes from. It serves as
 #'  the background for creating the enrichment list.
 #'@param org Organism, either "human" or "mouse".
+#'@param method_p_adjust P-value adjustment method to filter by the PN terms
+#'  (0.05 cutoff), either "fdr" (default) or "bonferroni"
 #'
 #'@returns A list with the enrichment result tables and dotplots.
 #'@export pn_enrich
-pn_enrich <- function(pn_db, bio_list, df, org){
+pn_enrich <- function(pn_db, bio_list, df, org, method_p_adjust = "fdr"){
   
   enrich_lists <- create_pn_enrich_lists(pn_db, df, org)
   
   hyp_objs <- lapply(enrich_lists, create_hyp_obj, bio_list = bio_list, df = df)
   
-  enrich_plot_dfs <- lapply(hyp_objs, prep_hyp_df)
+  enrich_plot_dfs <- sapply(names(hyp_objs), function(x){
+    foo <- hyp_objs[[x]]
+    
+    prep_hyp_df(foo, x, method_p_adjust) 
+  })
   
-  enrich_plots <- lapply(enrich_plot_dfs, enrich_pn_plot)
+  enrich_plots <- lapply(enrich_plot_dfs, enrich_pn_plot, method_p_adjust)
   
   foo_list <- list("tables" = enrich_plot_dfs,
                    "figures" = enrich_plots)
@@ -119,20 +125,21 @@ create_hyp_obj <- function(bio_list, enrich_list, df){
 }
 
 
-prep_hyp_df <- function(hyp_obj){
+prep_hyp_df <- function(hyp_obj, level, method_p_adjust){
   
   enrich_plot <- list()
   for (i in 1:length(hyp_obj)){
     
     df_hyp <- hyp_obj[[i]] %>%
-      dplyr::filter(fdr < .05) %>%
+      dplyr::mutate(bonferroni = p.adjust(pval, method = "bonferroni")) %>%
+      dplyr::filter(.data[[method_p_adjust]] < .05) %>%
       dplyr::mutate(cluster = names(hyp_obj)[i],
                     BgRatio = geneset / background,
                     GeneRatio = overlap / signature,
                     FoldEnrichment = GeneRatio / BgRatio
       )
     
-    if (names(hyp_obj)[i] == "class"){
+    if (level == "class"){
       
       df_hyp <- df_hyp %>% 
         tidyr::separate_wider_delim(label, 
@@ -157,12 +164,12 @@ prep_hyp_df <- function(hyp_obj){
 }
 
 
-enrich_pn_plot <- function(hyp_df){
+enrich_pn_plot <- function(hyp_df, method_p_adjust){
   
   foo_fig <- hyp_df %>%
     ggplot2::ggplot(ggplot2::aes(x = as.factor(cluster), 
                                  y = label, 
-                                 color = fdr)) +
+                                 color = .data[[method_p_adjust]])) +
     ggplot2::geom_point(ggplot2::aes(size = FoldEnrichment)) +
     ggplot2::geom_point() +
     hrbrthemes::theme_ipsum(base_size = 18) +
