@@ -4,7 +4,7 @@
 \alias{pn_enrich}
 \title{Proteostasis Network (PN) annotation database enrichment analysis}
 \usage{
-pn_enrich(pn_db, bio_list, df, org)
+pn_enrich(pn_db, bio_list, df, org, method_p_adjust = "fdr")
 }
 \arguments{
 \item{pn_db}{PN annotation database as a dataframe.}
@@ -16,6 +16,9 @@ interest}
 the background for creating the enrichment list.}
 
 \item{org}{Organism, either "human" or "mouse".}
+
+\item{method_p_adjust}{P-value adjustment method to filter by the PN terms
+(0.05 cutoff), either "fdr" (default) or "bonferroni"}
 }
 \value{
 A list with the enrichment result tables and dotplots.
