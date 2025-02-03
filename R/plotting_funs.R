@@ -125,3 +125,93 @@ heatmap_prot <- function(df,
   return(p)
   
 }
+
+#' Computes PCA
+#'
+#' @description `pca_prot()` calculates principal component analysis (PCA) using
+#'   stats::prcomp(). This function removes any missing values and then prepares
+#'   the input dataframe so that prcomp() can use it.
+#'
+#'
+#' @param df input dataframe
+#' @param meta dataframe with the metadata
+#' @param scale logical. Whether scale the data or not (default FALSE)
+#'
+#' @returns a list containing the results from computing the PCA, as well as any
+#'   confounder variables and the transformed dataframe.
+#'
+#' @export pca_prot
+pca_prot <- function(df, meta, scale = FALSE){
+
+  df <- na.omit(df)
+  
+  meta <- na.omit(meta)
+  
+  # Selects cofounder names
+  vars <- meta %>%
+    dplyr::select(-BioReplicate,
+                  -key) %>%
+    colnames(.)
+  
+  out_vars <- colnames(meta)
+  
+  out_vars <- dplyr::setdiff(out_vars, vars)
+  
+  tt <- as.data.frame(t(dplyr::select(df, tidyselect::any_of(meta$key))))
+  
+  tt <- tt %>%
+    dplyr::mutate(key = rownames(.)) %>%
+    dplyr::inner_join(meta, by = "key") %>%
+    dplyr::select(-all_of(out_vars)) %>%
+    dplyr::select(all_of(vars), everything())
+  
+  rownames(tt) <- as.vector(na.omit(meta$BioReplicate[match(colnames(df), meta$key)]))
+  
+  res.pca <- stats::prcomp(dplyr::select(tt, -all_of(vars)), scale = scale)
+  
+  # List
+  res.pca <- list(pca = res.pca,
+                  cofounders = vars,
+                  tt = tt)
+  
+  return(res.pca)
+  
+}
+
+#' Plots PCA
+#'
+#' @param res.pca list as output from pca_prot()
+#' @param var_p string. Variable from metadata to color.
+#'
+#' @returns a ggplot2 object (list)
+#' 
+#' @export plot_pca
+plot_pca <- function(res.pca, var_p){
+  
+  pca <- res.pca$pca
+  tt <- res.pca$tt
+  
+  fig <- factoextra::fviz_pca_ind(pca,
+                                  geom.ind = "point",
+                                  habillage = tt[[var_p]],
+                                  legend.title = "", 
+                                  title = "",
+                                  invisible = "quali",
+                                  pointsize = 4,
+                                  pointshape = 19,
+                                  addEllipses = TRUE,
+                                  # ellipse.type = "euclid",
+                                  repel = TRUE,
+                                  col.ind = "black"
+  ) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(legend.title = ggplot2::element_blank()) +
+    ggsci::scale_color_npg() +
+    ggrepel::geom_text_repel(aes(label = rownames(tt)),
+                             min.segment.length = 0, 
+                             seed = 42, 
+                             box.padding = 0.5)
+  
+  return(fig)
+  
+}
