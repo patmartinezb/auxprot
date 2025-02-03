@@ -23,6 +23,13 @@ filt_na <- function(df, threshold = 0.7){
   
 }
 
+#' Log2-transformation
+#'
+#' @param df dataframe to be log2-transformed
+#' @param meta dataframe with metadata
+#'
+#' @returns a log2-transformed dataframe
+#' @export prot_log2
 prot_log2 <- function(df, meta){
   ## Log2-transform only numeric data, for wrangling or plotting purposes ##
   # df: inputa dataframe. data matrix
@@ -35,6 +42,12 @@ prot_log2 <- function(df, meta){
   
 }
 
+#' Z score scaling
+#'
+#' @param x numeric vector to be scaled
+#'
+#' @returns a scaled numeric vector
+#' @export cal_z_score
 cal_z_score <- function(x) {
   ## Performs Z score ## 
   # x: numeric vector
