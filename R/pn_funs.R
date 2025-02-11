@@ -149,7 +149,7 @@ create_pn_enrich_lists <- function(pn_db, df, org){
 #' @export create_hyp_obj
 create_hyp_obj <- function(bio_list, enrich_list, df, method_p_val){
   
-  hyp_obj <- lapply(enrich_lists, function(x){
+  hyp_obj <- lapply(enrich_list, function(x){
     
     bio_list_flat <- purrr::list_flatten(bio_list)
     
