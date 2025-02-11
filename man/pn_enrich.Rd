@@ -4,18 +4,29 @@
 \alias{pn_enrich}
 \title{Proteostasis Network (PN) annotation database enrichment analysis}
 \usage{
-pn_enrich(pn_db, bio_list, df, org, method_p_adjust = "fdr")
+pn_enrich(
+  pn_db,
+  bio_list,
+  df,
+  org,
+  method_p_val = "minlike",
+  method_p_adjust = "fdr"
+)
 }
 \arguments{
-\item{pn_db}{PN annotation database as a dataframe.}
+\item{pn_db}{PN annotation database as a dataframe}
 
 \item{bio_list}{List populated by vectors containing the gene symbols of
 interest}
 
 \item{df}{Original dataframe from where \code{bio_list} comes from. It serves as
-the background for creating the enrichment list.}
+the background for creating the enrichment list}
 
-\item{org}{Organism, either "human" or "mouse".}
+\item{org}{Organism, either "human" or "mouse"}
+
+\item{method_p_val}{Method to calculate de P value from the hypergeometric
+distribution, either using the minimum-likelihood approach ('minlike',
+default), or doubling approach (mid-P value, 'central')}
 
 \item{method_p_adjust}{P-value adjustment method to filter by the PN terms
 (0.05 cutoff), either "fdr" (default) or "bonferroni"}
