@@ -121,6 +121,24 @@ tmt_integrator <- function(psm,
   cat("Number of proteins after filtering:",
       length(unique(psm4$Protein.ID)), "proteins.\n")
   
+  # Calculate grouping charges
+  charges <- psm4 %>%
+    dplyr::select(Protein.ID,
+                  Peptide,
+                  Charge,
+                  dplyr::any_of(metadata$key)) %>%
+    tidyr::pivot_longer(cols = dplyr::any_of(metadata$key),
+                        names_to = "key",
+                        values_to = "vals") %>%
+    dplyr::select(-vals) %>%  
+    dplyr::group_by(Protein.ID,
+                    Peptide,
+                    key) %>% 
+    dplyr::summarise(dplyr::across(dplyr::everything(), 
+                                   ~ toString(unique(.))),
+                     .groups = "drop")
+  
+  
   # Aggregate PSM information to protein information
   # First do it to the peptide level (non-redundant)
   pep <- psm4 %>%
@@ -135,6 +153,8 @@ tmt_integrator <- function(psm,
                     Peptide) %>%
     dplyr::summarise(sum_int = sum(vals),
                      .groups = "drop") %>%
+    dplyr::left_join(charges,
+                     by = c("Protein.ID", "Peptide", "key")) %>%
     tidyr::pivot_wider(names_from = "key",
                        values_from = "sum_int") %>% 
     dplyr::left_join(dplyr::select(psm3,
