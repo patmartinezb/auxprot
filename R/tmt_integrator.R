@@ -76,7 +76,7 @@ tmt_integrator <- function(psm,
       purity_thr, "threshold.\n")
   
   psm1 <- psm %>%
-    filter(Purity >= purity_thr)
+    dplyr::filter(Purity >= purity_thr)
   
   # 3. Filtering by minimum peptide probability
   # cat("Distribution of the PSMs probability:\n")
@@ -86,7 +86,7 @@ tmt_integrator <- function(psm,
       pep_prob_thr, "threshold.\n")
   
   psm2 <- psm1 %>%
-    filter(Probability >= pep_prob_thr)
+    dplyr::filter(Probability >= pep_prob_thr)
   
   # 4. Summed MS2 intensity filtering
   five.pc <- quantile(psm$sum_int, probs = sum_ms2_int_thr)
@@ -97,7 +97,7 @@ tmt_integrator <- function(psm,
       sum_ms2_int_thr*100, "% threshold.\n")
   
   psm3 <- psm2 %>%
-    filter(sum_int >= five.pc)
+    dplyr::filter(sum_int >= five.pc)
   
   
   # Must be TMT labeled
