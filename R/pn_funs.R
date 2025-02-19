@@ -50,15 +50,13 @@ pn_enrich <- function(pn_db, bio_list, df, org, method_p_val = "minlike", method
 #'   genes beloging to each category.
 #'
 #' @param pn_db PN annotation database as a dataframe
-#' @param df Original dataframe from where `bio_list` comes from. It serves as
-#'   the background for creating the enrichment list
 #' @param org Organism, either "human" or "mouse"
 #'
 #' @returns A list of lists, where the last level is comprised of vectors with
 #'   the genes belonging to each category
 #'
 #' @export create_pn_enrich_lists
-create_pn_enrich_lists <- function(pn_db, df, org){
+create_pn_enrich_lists <- function(pn_db, org){
   
   # Built PN lists for enrichment
   
