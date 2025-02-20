@@ -43,15 +43,14 @@ tmt_integrator <- function(psm,
     tibble::as_tibble(.name_repair = make.names) %>% # make.names() preserves the sample names as in metadata
     dplyr::mutate(sum_int = rowSums(dplyr::across(dplyr::any_of(metadata$key)), 
                                     na.rm = T)) %>%  # sum all intensitites, rowwise
-    # dplyr::mutate(Assigned.Modifications = janitor::make_clean_names(Assigned.Modifications)) %>% # allows tmt labeling filtering
     dplyr::mutate(Assigned.Modifications = tolower(Assigned.Modifications),
                   Assigned.Modifications = gsub("\\-|\\(|\\)", 
                                                 ".", 
                                                 Assigned.Modifications),
-                  Assigned.Modifications = gsub("\\.", "_", Assigned.Modifications)) %>%
-    tidyr::separate_wider_delim(Entry.Name, delim = "_", names = c("symbol", 
-                                                                   "organism")) %>% 
+                  Assigned.Modifications = gsub("\\.", "_", Assigned.Modifications),
+                  organism = sub('.*\\_', '', Protein)) %>%  
     dplyr::filter(organism == toupper(org)) # remove contaminants from other species
+  
   
   # 1. If there's a ref/pool channel (+1 plexes), no 0 in them
   
