@@ -4,13 +4,10 @@
 \alias{create_pn_enrich_lists}
 \title{Transforms PN database into list}
 \usage{
-create_pn_enrich_lists(pn_db, df, org)
+create_pn_enrich_lists(pn_db, org)
 }
 \arguments{
 \item{pn_db}{PN annotation database as a dataframe}
-
-\item{df}{Original dataframe from where \code{bio_list} comes from. It serves as
-the background for creating the enrichment list}
 
 \item{org}{Organism, either "human" or "mouse"}
 }

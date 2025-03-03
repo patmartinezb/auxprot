@@ -20,7 +20,7 @@
 #'@export pn_enrich
 pn_enrich <- function(pn_db, bio_list, df, org, method_p_val = "minlike", method_p_adjust = "fdr"){
   
-  enrich_lists <- create_pn_enrich_lists(pn_db, df, org)
+  enrich_lists <- create_pn_enrich_lists(pn_db, org)
   
   hyp_objs <- create_hyp_obj(bio_list, 
                              enrich_lists, 
