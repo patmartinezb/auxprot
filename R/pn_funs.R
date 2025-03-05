@@ -223,13 +223,26 @@ fisher_enrich <- function(signature, geneset, N, method_p_val, label){
                                                 tsmethod = "central",
                                                 midp = TRUE)$p.value)
   
+  # Incorporate a tag for either enrichment or depletion
+  if (stats::fisher.test(con_table, 
+                         alternative = "less")$p.value < 0.05){
+    dir <- "depletion"
+  } else if (stats::fisher.test(con_table, 
+                                alternative = "greater")$p.value < 0.05){
+    dir <- "enrichment"
+  } else {
+    dir <- "not_sig"
+  }
+  
+  
   res.df <- data.frame(label = label,
                        pval = pval,
                        signature = m,
                        geneset = n,
                        overlap = k,
                        background = N,
-                       hits = paste(overlap.hits, collapse = ", "))
+                       hits = paste(overlap.hits, collapse = ", "),
+                       direction = dir)
   
   return(res.df)
   
