@@ -572,7 +572,7 @@ check_log2 <- function(df, res_limma, metadata){
 grouping_var <- function(meta, comp){
   
   var_m <- meta %>%
-    dplyr::select_if(~ select_grouping_var(., comp)) %>%
+    dplyr::select(dplyr::where(~select_grouping_var(.x, comp))) %>% 
     colnames
   
   if (any(c("BioReplicate", "key") %in% var_m)){
@@ -587,6 +587,8 @@ grouping_var <- function(meta, comp){
 
 select_grouping_var <- function(x, comp){
   
-  any(stringr::str_detect(x, comp$Condition[1]))
+  x = paste0("\\b", x, "\\b") # forces exact match
+  
+  any(sapply(x, grepl, comp$Condition[1]))
   
 }
