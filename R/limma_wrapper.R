@@ -445,9 +445,9 @@ check_log2 <- function(df, res_limma, metadata){
       
       list_lfc <- list()
       
-      for (i in 1:length(name_comp1)){
+      for (j in 1:length(name_comp1)){
         
-        name_comp <- name_comp1[[i]]
+        name_comp <- name_comp1[[j]]
         
         meta_comp <- metadata %>%
           dplyr::filter(Condition %in% name_comp)
@@ -475,7 +475,7 @@ check_log2 <- function(df, res_limma, metadata){
                         logFC)
         
         
-        list_lfc[[i]] <- df_org
+        list_lfc[[j]] <- df_org
         
       }
       
