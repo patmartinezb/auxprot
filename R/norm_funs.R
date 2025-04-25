@@ -27,22 +27,26 @@ SL_norm <- function(df, meta) {
     dplyr::summarise(sums = sum(vals, na.rm = T)) %>% 
     dplyr::ungroup()
   
-  # Calculate the mean of those sums
-  mean_v <- df_sums %>% 
-    dplyr::summarise(mean = mean(sums, na.rm = T)) %>% 
-    dplyr::pull(mean)
+  # Calculate the mean of those sums, by plex
+  mean_v <- df_sums %>%
+    dplyr::group_by(Mixture) %>% 
+    dplyr::summarise(mean = mean(sums, na.rm = T))
   
   # For each sample, calculate the normalization factors
   df_norm_fact <- df_sums %>% 
-    dplyr::group_by(key) %>%
-    dplyr::reframe(norm_fact = mean_v / sums)
+    dplyr::left_join(mean_v,
+                     by = "Mixture") %>% 
+    dplyr::mutate(norm_fact = mean / sums) %>% 
+    dplyr::select(- sums,
+                  - mean)
   
   # Multiply each protein in each sample by the corresponding normalization factor
   df_sl <- df_long %>% 
     dplyr::left_join(df_norm_fact,
-                     by = "key") %>% 
+                     by = c("key", "Mixture")) %>% 
     dplyr::mutate(vals_norm = vals * norm_fact) %>% 
     dplyr::select(- vals,
+                  - Mixture,
                   - norm_fact) %>% 
     tidyr::pivot_wider(names_from = key, 
                        values_from = vals_norm)
