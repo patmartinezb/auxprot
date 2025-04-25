@@ -10,7 +10,7 @@
 #'
 #' @export SL_norm
 SL_norm <- function(df, meta) {
-# Computes normalization factors and scales columns
+  # Computes normalization factors and scales columns
   
   # Transform df to long format and add metadata
   df_long <- df %>% 
@@ -18,6 +18,7 @@ SL_norm <- function(df, meta) {
                         names_to = "key", 
                         values_to = "vals") %>% 
     dplyr::left_join(dplyr::select(meta,
+                                   Mixture,
                                    key),
                      by = "key") 
   
@@ -29,16 +30,19 @@ SL_norm <- function(df, meta) {
   
   # Calculate the mean of those sums, by plex
   mean_v <- df_sums %>%
+    dplyr::left_join(meta, by = "key") %>% 
     dplyr::group_by(Mixture) %>% 
     dplyr::summarise(mean = mean(sums, na.rm = T))
   
   # For each sample, calculate the normalization factors
   df_norm_fact <- df_sums %>% 
+    dplyr::left_join(meta, by = "key") %>%
     dplyr::left_join(mean_v,
                      by = "Mixture") %>% 
     dplyr::mutate(norm_fact = mean / sums) %>% 
-    dplyr::select(- sums,
-                  - mean)
+    dplyr::select(key,
+                  Mixture,
+                  norm_fact)
   
   # Multiply each protein in each sample by the corresponding normalization factor
   df_sl <- df_long %>% 
