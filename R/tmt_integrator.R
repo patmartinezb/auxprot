@@ -13,7 +13,7 @@
 #' @param org Input vector of length 1. Indicates the species the data belongs
 #'   to.
 #' @param tmt Input vector of length 1. Indicates the type of TMT used, either
-#'   `tmt` or `tmtpro`.
+#'   `tmt`, `tmtpro` or `tmtpro0`.
 #' @param purity_thr Numeric vector of length 1. Indicates purity threshold.
 #'   Default is 0.5 (50%).
 #' @param pep_prob_thr Numeric vector of length 1. Indicates peptide probability
@@ -41,6 +41,9 @@ tmt_integrator <- function(psm,
   # 0.Initial transformation and filtering for contaminants of PSM data
   psm <- psm %>% 
     tibble::as_tibble(.name_repair = make.names) %>% # make.names() preserves the sample names as in metadata
+    dplyr::rename_with(., # name fix for fragpipe v23
+                       ~ gsub("Intensity.", "", .x),
+                       dplyr::starts_with("Intensity.")) %>%
     dplyr::mutate(sum_int = rowSums(dplyr::across(dplyr::any_of(metadata$key)), 
                                     na.rm = T)) %>%  # sum all intensitites, rowwise
     dplyr::mutate(Assigned.Modifications = tolower(Assigned.Modifications),
