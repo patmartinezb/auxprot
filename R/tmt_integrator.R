@@ -104,7 +104,8 @@ tmt_integrator <- function(psm,
   
   tmt <- switch(tmt,
                 "tmt" = "n_term_229_1629",
-                "tmtpro" = "n_term_304_207")
+                "tmtpro" = "n_term_304_207",
+                "tmtpro0" = "n_term_295_1896")
   
   psm4 <- psm3 %>%
     dplyr::mutate(is.labeled = dplyr::case_when(
