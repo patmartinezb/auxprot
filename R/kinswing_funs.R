@@ -114,7 +114,7 @@ kinswing <- function(phospho_raw, coefs, fit2, level = "pval", org, Protein.IDs)
     swing_out <- KinSwingR::swing(input_data = annotated_data, 
                                   pwm_in = pwms, 
                                   pwm_scores = scores,
-                                  return_network = TRUE)
+                                  return_network = F)
     
     # Create list for further plotting
     list_temp <- list(scores = scores,
