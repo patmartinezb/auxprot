@@ -87,7 +87,9 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
   
   for (i in 1:length(listy)){
     
-    nam <- names(listy)[i]
+    nam_l <- names(listy)[i]
+    
+    nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_l)]
     
     listy[[i]] <- listy[[i]] %>% 
       dplyr::left_join(dplyr::select(SE_df,
