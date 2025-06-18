@@ -78,6 +78,27 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
                          phospho, 
                          anova)
   
+  # Calculate standard error of effect sizes / logFC
+  SE_df <- sqrt(fit2$s2.post) * fit2$stdev.unscaled
+  
+  SE_df <- SE_df %>% 
+    as.data.frame %>% 
+    tibble::rownames_to_column("Protein.IDs")
+  
+  for (i in 1:length(listy)){
+    
+    nam <- names(listy)[i]
+    
+    listy[[i]] <- listy[[i]] %>% 
+      dplyr::left_join(dplyr::select(SE_df,
+                                     Protein.IDs,
+                                     dplyr::any_of(nam)),
+                       by = "Protein.IDs") %>% 
+      dplyr::rename(logFC_SE = dplyr::any_of(nam)) %>% 
+      dplyr::relocate(logFC_SE, .after = logFC)
+    
+  }
+  
   # checkpoint - if differences between calculated logFCs and those yielded by limma - manually check
   
   if (!isTRUE(anova)){
@@ -330,7 +351,8 @@ get_res <- function(fit2, anova, coefs, Protein.IDs, id = NULL, phospho = "no"){
     
     res <- limma::topTable(fit2,
                            number = Inf,
-                           genelist = as.data.frame(Protein.IDs)) %>%
+                           genelist = as.data.frame(Protein.IDs),
+                           confint = T) %>%
       dplyr::mutate(direction = dplyr::case_when(adj.P.Val < 0.05 ~ "DE",
                                                  TRUE ~ "No DE"),
                     log.adj.P.Val = -1 * log10(adj.P.Val))
@@ -340,7 +362,8 @@ get_res <- function(fit2, anova, coefs, Protein.IDs, id = NULL, phospho = "no"){
     res <- limma::topTable(fit2,
                            coef = coefs,
                            number = Inf,
-                           genelist = as.data.frame(Protein.IDs)) %>%
+                           genelist = as.data.frame(Protein.IDs),
+                           confint = T) %>%
       dplyr::mutate(direction = dplyr::case_when((logFC > 0) & (adj.P.Val < 0.05) ~ "Up",
                                                  (logFC < 0) & (adj.P.Val < 0.05) ~ "Down",
                                                  TRUE ~ "No DE"),
