@@ -85,6 +85,12 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
     as.data.frame %>% 
     tibble::rownames_to_column("Protein.IDs")
   
+  # Extract degrees of freedom (total)
+  d_freedom <- data.frame(Protein.IDs = SE_df$Protein.IDs,
+                          dfs = fit2$df.total)
+  
+  
+  # Incorporate everything
   for (i in 1:length(listy)){
     
     nam_l <- names(listy)[i]
@@ -96,8 +102,10 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
                                      Protein.IDs,
                                      dplyr::any_of(nam)),
                        by = "Protein.IDs") %>% 
-      dplyr::rename(logFC_SE = dplyr::any_of(nam)) %>% 
-      dplyr::relocate(logFC_SE, .after = logFC)
+      dplyr::rename(logFC_SE = dplyr::any_of(nam)) %>%
+      dplyr::relocate(logFC_SE, .after = logFC) %>% 
+      dplyr::left_join(d_freedom,
+                       by = "Protein.IDs")
     
   }
   
