@@ -106,9 +106,9 @@ tmt_integrator <- function(psm,
   # the weight is different if tmt or tmtpro
   
   tmt <- switch(tmt,
-                "tmt" = "n_term_229_1629",
-                "tmtpro" = "n_term_304_207",
-                "tmtpro0" = "n_term_295_1896")
+                "tmt" = "229_1629",
+                "tmtpro" = "304_207",
+                "tmtpro0" = "295_1896")
   
   psm4 <- psm3 %>%
     dplyr::mutate(is.labeled = dplyr::case_when(
@@ -141,6 +141,11 @@ tmt_integrator <- function(psm,
                                    ~ toString(unique(.))),
                      .groups = "drop")
   
+  # Calculate number of total PSMs per peptide and protein
+  n_psm <- psm4 %>% 
+    dplyr::group_by(Peptide, Protein.ID) %>% 
+    dplyr::count(name = "n_psm")
+  
   
   # Aggregate PSM information to protein information
   # First do it to the peptide level (non-redundant)
@@ -170,9 +175,25 @@ tmt_integrator <- function(psm,
                                    Protein.End),
                      by = c("Protein.ID",
                             "Peptide")) %>% 
+    dplyr::left_join(n_psm, 
+                     by = c("Protein.ID",
+                            "Peptide")) %>% 
     dplyr::relocate(dplyr::any_of(metadata$key),
-                    .after = dplyr::last_col()) %>% 
+                    .after = dplyr::last_col()) %>%
+    dplyr::relocate(c(Charge, n_psm), 
+                    .after = Protein.Description) %>% 
     dplyr::distinct()
+  
+  # Calculate total number of PSMs (including redundant) and number of peptides (unique PSMs)
+  pep_n <- pep %>% 
+    dplyr::group_by(Protein.ID) %>% 
+    dplyr::count(name = "n_peptides") %>% 
+    dplyr::ungroup()
+  
+  n_psm_total <- pep %>% 
+    dplyr::group_by(Protein.ID) %>% 
+    dplyr::summarise(n_psm = sum(n_psm), 
+                     .groups = "drop")
   
   # Then, from the peptide level, aggregate (sum) the peptides to proteins
   protein <- pep %>% 
@@ -193,8 +214,14 @@ tmt_integrator <- function(psm,
                                    Gene,
                                    Protein.Description),
                      by = "Protein.ID") %>% 
+    dplyr::left_join(pep_n, 
+                     by = "Protein.ID") %>% 
+    dplyr::left_join(n_psm_total, 
+                     by = "Protein.ID") %>% 
     dplyr::relocate(dplyr::any_of(metadata$key),
                     .after = dplyr::last_col()) %>% 
+    dplyr::relocate(n_peptides:n_psm, 
+                    .after = Protein.Description) %>%
     dplyr::distinct() %>% 
     dplyr::rename(Index = Protein.ID)
   

@@ -23,7 +23,7 @@ tmt_integrator(
 to.}
 
 \item{tmt}{Input vector of length 1. Indicates the type of TMT used, either
-\code{tmt} or \code{tmtpro}.}
+\code{tmt}, \code{tmtpro} or \code{tmtpro0}.}
 
 \item{purity_thr}{Numeric vector of length 1. Indicates purity threshold.
 Default is 0.5 (50\%).}
