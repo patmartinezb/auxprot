@@ -10,7 +10,7 @@
 #'
 #' @param psm Input FragPipe data matrix at the PSM level.
 #' @param metadata Input dataframe. Metadata associated to `psm`.
-#' @param org Input vector of length 1. Indicates the species the data belongs
+#' @param org Input vector of length >= 1. Indicates the species (could be several) the data belongs
 #'   to.
 #' @param tmt Input vector of length 1. Indicates the type of TMT used, either
 #'   `tmt`, `tmtpro` or `tmtpro0`.
@@ -52,7 +52,7 @@ tmt_integrator <- function(psm,
                                                 Assigned.Modifications),
                   Assigned.Modifications = gsub("\\.", "_", Assigned.Modifications),
                   organism = sub('.*\\_', '', Protein)) %>%  
-    dplyr::filter(organism == toupper(org)) # remove contaminants from other species
+    dplyr::filter(organism %in% toupper(org)) # remove contaminants from other species
   
   
   # 1. If there's a ref/pool channel (+1 plexes), no 0 in them
