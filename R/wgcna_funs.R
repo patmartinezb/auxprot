@@ -550,7 +550,7 @@ boxplot_hub_prots <- function(MEs, list.clusters, meta, var, moduleColors){
       dplyr::slice(1:6) %>% 
       tidyr::pivot_longer(!c(Protein.IDs, 
                              dplyr::all_of(col_me), 
-                             moduleColors, SYMBOL), 
+                             moduleColors), 
                           names_to = "key", 
                           values_to = "vals") %>%
       dplyr::mutate(prot_kme = paste0(Protein.IDs, 
