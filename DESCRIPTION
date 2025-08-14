@@ -33,7 +33,6 @@ Imports:
     magrittr,
     org.Hs.eg.db,
     org.Mm.eg.db,
-    pheatmap,
     plyr,
     purrr,
     readr,

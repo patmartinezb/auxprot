@@ -49,82 +49,82 @@ volcano_prot <- function(df, var, anno){
   
 }
 
-#' Plots heatmap with color-coded annotation.
-#'
-#' @description `heatmap_prot()` plots a heatmap with extra annotation in the
-#'   form of colors. Wrapper for `pheatmap()`.
-#'
-#'
-#' @param df Input dataframe. Data matrix.
-#' @param meta Input dataframe. Metadata associated to `df`.
-#' @param vars Input character vector of length >= 1. Indicates the variables
-#'   that are going to be
-#' @param z.score Input boolean vector. Default is FALSE. Performs z score.
-#' @param cutrow Input numeric vector. Indicates the k groups or clusters that
-#'   the row dendrogram should be divided into.
-#' @param cutcol Input numeric vector. Indicates the k groups or clusters that
-#'   the column dendrogram should be divided into.
-#'
-#' @return A pheatmap object.
-#' @export heatmap_prot
-heatmap_prot <- function(df, 
-                         meta, 
-                         vars, 
-                         z.score = FALSE, 
-                         # pal,
-                         cutrow = NA, 
-                         cutcol = NA){
-  
-  
-  df <- as.data.frame(df)
-  meta <- as.data.frame(meta)
-  
-  iterations = nrow(meta)
-  variables = length(vars)
-  
-  my_sample_col <- matrix(ncol = variables, 
-                          nrow = iterations)
-  
-  for(i in 1:variables){
-    my_sample_col[,i] <- meta[[vars[i]]]
-  }
-  
-  colnames(my_sample_col) <- vars
-  my_sample_col <- as.data.frame(my_sample_col)
-  
-  rownames(my_sample_col) <- meta$key
-  
-  
-  
-  df_heat <- dplyr::select_if(df, is.numeric)
-  
-  # colnames(df_heat) <- meta$key
-  rownames(df_heat) <- df$Protein.IDs
-  
-  if (z.score == TRUE){
-    
-    df_heat <- t(apply(df_heat, 1, cal_z_score))
-    
-  }
-  
-  # TODO: generalize pal param
-  # if (variables == 1){
-  #   pal = list(vars = pal)
-  # } else {
-  #   
-  # }
-  
-  
-  p <- pheatmap::pheatmap(na.omit(df_heat),
-                          annotation_col = my_sample_col,
-                          cutree_rows = cutrow,
-                          cutree_cols = cutcol,
-                          # annotation_colors = pal,
-                          show_rownames = FALSE)
-  
-  return(p)
-  
-}
+#' #' Plots heatmap with color-coded annotation.
+#' #'
+#' #' @description `heatmap_prot()` plots a heatmap with extra annotation in the
+#' #'   form of colors. Wrapper for `pheatmap()`.
+#' #'
+#' #'
+#' #' @param df Input dataframe. Data matrix.
+#' #' @param meta Input dataframe. Metadata associated to `df`.
+#' #' @param vars Input character vector of length >= 1. Indicates the variables
+#' #'   that are going to be
+#' #' @param z.score Input boolean vector. Default is FALSE. Performs z score.
+#' #' @param cutrow Input numeric vector. Indicates the k groups or clusters that
+#' #'   the row dendrogram should be divided into.
+#' #' @param cutcol Input numeric vector. Indicates the k groups or clusters that
+#' #'   the column dendrogram should be divided into.
+#' #'
+#' #' @return A pheatmap object.
+#' #' @export heatmap_prot
+#' heatmap_prot <- function(df, 
+#'                          meta, 
+#'                          vars, 
+#'                          z.score = FALSE, 
+#'                          # pal,
+#'                          cutrow = NA, 
+#'                          cutcol = NA){
+#'   
+#'   
+#'   df <- as.data.frame(df)
+#'   meta <- as.data.frame(meta)
+#'   
+#'   iterations = nrow(meta)
+#'   variables = length(vars)
+#'   
+#'   my_sample_col <- matrix(ncol = variables, 
+#'                           nrow = iterations)
+#'   
+#'   for(i in 1:variables){
+#'     my_sample_col[,i] <- meta[[vars[i]]]
+#'   }
+#'   
+#'   colnames(my_sample_col) <- vars
+#'   my_sample_col <- as.data.frame(my_sample_col)
+#'   
+#'   rownames(my_sample_col) <- meta$key
+#'   
+#'   
+#'   
+#'   df_heat <- dplyr::select_if(df, is.numeric)
+#'   
+#'   # colnames(df_heat) <- meta$key
+#'   rownames(df_heat) <- df$Protein.IDs
+#'   
+#'   if (z.score == TRUE){
+#'     
+#'     df_heat <- t(apply(df_heat, 1, cal_z_score))
+#'     
+#'   }
+#'   
+#'   # TODO: generalize pal param
+#'   # if (variables == 1){
+#'   #   pal = list(vars = pal)
+#'   # } else {
+#'   #   
+#'   # }
+#'   
+#'   
+#'   p <- pheatmap::pheatmap(na.omit(df_heat),
+#'                           annotation_col = my_sample_col,
+#'                           cutree_rows = cutrow,
+#'                           cutree_cols = cutcol,
+#'                           # annotation_colors = pal,
+#'                           show_rownames = FALSE)
+#'   
+#'   return(p)
+#'   
+#' }
 
 #' Computes PCA
 #'
@@ -415,6 +415,48 @@ cofounders_plot <- function(res.pca){
   
   return(fig)
   
+}
+
+
+calc_confound <- function(x, tt, cofounders, ndims){
+  
+  # Calculates de pvalues and R2 for numeric and categorical cofounders
+  # x: return x from prcomp, output of pca_prot()
+  # tt: the original matrix created within pca_prot()
+  # cofounders: character vector with the variable names of the cofounders, from pca_prot() output
+  # ndims: character vector with the desired number of PCs
+  
+  lapply(setNames(cofounders, cofounders), function(int.var){
+    
+    # Linear model and get the p-value for the model: F-statistic via ANOVA, and effect size measures of variance explained (adjusted R2 mostly)
+    
+    if(is.numeric(tt[ ,int.var])){
+      
+      lapply(setNames(1:ndims, paste0("PC", 1:ndims)),function(y){
+        
+        mod <- lm(scale(x[ ,y]) ~ scale(tt[ ,int.var]))
+        list(
+          p = anova(mod)$`Pr(>F)`[1], # In 1-variable linear regression, this is the same as the p-value of the slope coefficient (https://stackoverflow.com/questions/5587676/pull-out-p-values-and-r-squared-from-a-linear-regression)
+          r = summary(mod)$coef[2, 1], # The standardized/scaled regression coefficient in a lm(1 variable) is the same as Pearson's r for correlation (https://stats.stackexchange.com/questions/2125/whats-the-difference-between-correlation-and-simple-linear-regression)
+          R2 = summary(mod)$r.squared,
+          R2_adj = summary(mod)$adj.r.squared
+        )
+        
+      })
+      
+    } else { # For categorical variables
+      
+      lapply(setNames(1:ndims, paste0("PC", 1:ndims)),function(y){
+        
+        mod <- lm(scale(x[ ,y]) ~ as.factor(tt[ ,int.var]))
+        list(
+          p = anova(mod)$`Pr(>F)`[1],
+          R2 = summary(mod)$r.squared,
+          R2_adj = summary(mod)$adj.r.squared
+        )
+      })
+    }
+  })
 }
 
 
