@@ -25,6 +25,7 @@ Imports:
     ggpubr,
     ggrepel,
     ggsci,
+    hablar,
     hrbrthemes,
     janitor,
     KinSwingR,
@@ -41,6 +42,7 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
+    vroom,
     WGCNA
 URL: https://github.com/patmartinezb/auxprot
 BugReports: https://github.com/patmartinezb/auxprot/issues

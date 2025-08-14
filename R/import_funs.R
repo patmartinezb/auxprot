@@ -514,17 +514,26 @@ process_other <- function(raw, metadata){
 }
 
 
-#' Title
+#' Clean proteomic data matrix
 #'
-#' @param software 
-#' @param raw 
-#' @param metadata 
-#' @param phospho 
+#' @description `process_raw()` prepares the proteomic data matrix, depending on
+#'   its origin (FragPipe, MaxQuant, or others), so that it can be work with
+#'   safely. It cleans variable names, transforms 0 into NA, and removes
+#'   contaminants.
 #'
-#' @returns
-#' @export
+#' @param software String of length 1 indicating the software of origin, either
+#'   FragPipe ("fp"), MaxQuant ("mq") or others ("other").
+#' @param raw Dataframe with the proteomic data. If "other" was selected in
+#'   `software`, the matrix should contain only the numeric matrix where the
+#'   column names correspond to what's indicated in the metadata; and a column
+#'   with the protein identifications (called either "Index", "Accession" or
+#'   "Protein.IDs").
+#' @param metadata Dataframe with the corresponding metadata.
+#' @param phospho TRUE or FALSE (default), whether `raw` is a phosphoproteomic
+#'   data matrix.
 #'
-#' @examples
+#' @returns A dataframe with the proteomic data ready to work with.
+#' @export process_raw
 process_raw <- function(software, raw, metadata, phospho = FALSE){
   
   # Depending on the software of origin, use the corresponding function for processing

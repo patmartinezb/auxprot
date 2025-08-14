@@ -19,7 +19,7 @@ tmt_integrator(
 
 \item{metadata}{Input dataframe. Metadata associated to \code{psm}.}
 
-\item{org}{Input vector of length 1. Indicates the species the data belongs
+\item{org}{Input vector of length >= 1. Indicates the species (could be several) the data belongs
 to.}
 
 \item{tmt}{Input vector of length 1. Indicates the type of TMT used, either
