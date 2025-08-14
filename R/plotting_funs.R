@@ -74,7 +74,11 @@ pca_prot <- function(df, meta, scale = FALSE){
   # Selects cofounder names
   vars <- meta %>%
     dplyr::select(-BioReplicate,
-                  -key) %>%
+                  -key,
+                  -Run,
+                  -TechRepMixture,
+                  -Fraction,
+                  -Channel) %>%
     colnames(.)
   
   out_vars <- colnames(meta)
