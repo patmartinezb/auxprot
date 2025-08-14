@@ -211,15 +211,15 @@ wgcna_prot <- function(df,
       dplyr::filter(moduleColors == col) %>% 
       dplyr::arrange(desc(.data[[id]]))
     
-    prot.ids <- clusterProfiler::bitr(temp$Protein.IDs, 
-                                      fromType = "UNIPROT", 
-                                      toType = "SYMBOL", 
-                                      OrgDb = org) %>% 
-      dplyr::distinct(UNIPROT, .keep_all = TRUE) %>% 
-      dplyr::rename(Protein.IDs = UNIPROT)
-    
-    temp <- temp %>%
-      dplyr::left_join(prot.ids)
+    # prot.ids <- clusterProfiler::bitr(temp$Protein.IDs, 
+    #                                   fromType = "UNIPROT", 
+    #                                   toType = "SYMBOL", 
+    #                                   OrgDb = org) %>% 
+    #   dplyr::distinct(UNIPROT, .keep_all = TRUE) %>% 
+    #   dplyr::rename(Protein.IDs = UNIPROT)
+    # 
+    # temp <- temp %>%
+    #   dplyr::left_join(prot.ids)
     
     list.clusters[[i]] <- temp
     names(list.clusters)[i] <- col

@@ -199,7 +199,7 @@ plot_pca <- function(res.pca, var_p){
                                   invisible = "quali",
                                   pointsize = 4,
                                   pointshape = 19,
-                                  addEllipses = TRUE,
+                                  # addEllipses = TRUE,
                                   # ellipse.type = "euclid",
                                   repel = TRUE,
                                   col.ind = "black"
@@ -213,5 +213,255 @@ plot_pca <- function(res.pca, var_p){
                              box.padding = 0.5)
   
   return(fig)
+  
+}
+
+
+#' Boxplots for proteomics data
+#'
+#' @description `prot_boxplot()` creates boxplots for all samples - can be
+#'   reordered or not, based on the intensity/abundance variable
+#'
+#' @param df Dataframe to be plotted
+#' @param metadata Dataframe with associated metadata
+#' @param fill String with name of variable to fill the boxplots
+#' @param reorder TRUE or FALSE (default). Reorder boxplots based on intensity
+#' @param var_reorder String with name of the variable to use for reorder
+#'
+#' @returns A ggplot2 object
+#' @export prot_boxplot
+prot_boxplot <- function(df, metadata, fill, reorder = FALSE, var_reorder = "counts"){
+  
+  if (reorder == TRUE){
+    
+    df <- df %>%
+      dplyr::select(Protein.IDs,
+                    which(plyr::colwise(is.numeric)(.) == TRUE)) %>%
+      tidyr::pivot_longer(!Protein.IDs, names_to = "key", values_to = "counts") %>%
+      dplyr::left_join(metadata, by = "key")
+    
+    df$BioReplicate <- reorder(as.factor(df$BioReplicate), df[[var_reorder]], na.rm = TRUE)
+    
+    plot <- ggplot2::ggplot(df) +
+      ggplot2::geom_boxplot(
+        ggplot2::aes(x = BioReplicate, y = counts, fill = .data[[fill]])
+      ) +
+      ggplot2::labs(y = "Log2-intensity", x = "Samples") +
+      ggsci::scale_fill_npg() +
+      ggplot2::theme_classic() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.5, size = 12))
+    
+    return(plot)
+    
+  } else {
+    
+    plot <- df %>%
+      dplyr::select(Protein.IDs, which(plyr::colwise(is.numeric)(.) == TRUE)) %>%
+      tidyr::pivot_longer(!Protein.IDs, names_to = "key", values_to = "counts") %>%
+      dplyr::left_join(metadata, by = "key") %>%
+      ggplot2::ggplot() +
+      ggplot2::geom_boxplot(
+        ggplot2::aes(x = BioReplicate, y = counts, fill = .data[[fill]])
+      ) +
+      ggplot2::labs(y = "Log2-intensity", x = "Samples") +
+      ggsci::scale_fill_npg() +
+      ggplot2::theme_classic() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.5, size = 12))
+    
+    return(plot)
+    
+  }
+  
+}
+
+
+#' Density plot for proteomics data
+#'
+#' @description `prot_denplot()` creates density plots of proteomics data
+#'
+#' @param df Dataframe to be plotted
+#' @param metadata Dataframe with associated metadata
+#' @param color String with variable name to be used as grouping variable
+#'
+#' @returns A ggplot2 object
+#' @export prot_denplot
+prot_denplot <- function(df, metadata, color = "BioReplicate"){
+  
+  plot <- df %>%
+    dplyr::select(Protein.IDs, which(plyr::colwise(is.numeric)(.) == TRUE)) %>%
+    tidyr::pivot_longer(!Protein.IDs, names_to = "key", values_to = "counts") %>%
+    dplyr::left_join(metadata, by = "key") %>%
+    ggplot2::ggplot() +
+    ggplot2::geom_density(
+      ggplot2::aes(x = counts, color = .data[[color]])
+    ) +
+    ggplot2::labs(y = "Density", x = "Samples") +
+    ggsci::scale_fill_npg() +
+    ggplot2::theme_classic() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 60, vjust = 0.5, size = 12))
+  
+  return(plot)
+  
+}
+
+
+#' Principal component analysis (or PCA) regression plot
+#'
+#' @description `cofounders_plot()` uses the information provided by calculating
+#'   a PCA, extracts the top principal components (PCs), which are orthogonal
+#'   variables explaining the information contained within it. Then, the
+#'   different clinical or technical variables indicated in the metadata are
+#'   regressed against the PCs. The heatmap shows the values of the R² and
+#'   significance (FDR), indicating the strength of the relationship between the
+#'   variables and the PCs.
+#'
+#' @param res.pca Output list from `pca_prot()`
+#'
+#' @returns A ggplot2 object
+#' @export cofounders_plot
+cofounders_plot <- function(res.pca){
+
+  # Define variables
+  pca <- res.pca$pca
+  cofounders2 <- res.pca$cofounders
+  tt <- res.pca$tt
+  
+  cofounders <- c() # Check that the confounders have more than one level
+  for (i in 1:length(cofounders2)){
+    
+    if (!is.numeric(tt[,i])){
+      
+      levs <- nlevels(as.factor(tt[, i]))
+      
+      if (levs > 1){
+        
+        cofounders[i] <- cofounders2[i]
+        cofounders <- cofounders[!is.na(cofounders)]
+      }
+    } else{
+      
+      cofounders[i] <- cofounders2[i]
+      
+    }
+  }
+  
+  # Number of PCs to interrogate
+  if (dim(pca$x)[2] > 15){
+    ndims <- 15
+  } else {
+    ndims <- dim(pca$x)[2]
+  }
+  
+  # We may have both numerical and categorical variables, so we will do linear modeling:
+  confound <- calc_confound(pca$x, tt, cofounders, ndims)
+  
+  # Get p-values and adjust
+  ps <- sapply(confound, function(x){sapply(x, function(y){y$p})})
+  ps.adj <- matrix(p.adjust(c(as.matrix(ps)), method = 'fdr'), ncol = ncol(ps), byrow = F)
+  
+  # Get R2 values and filter by FDR
+  r2s <- sapply(confound, function(x){sapply(x, function(y){y$R2_adj})})
+  r2s <- matrix(as.character(round(r2s, 2)),ncol = ncol(ps.adj))
+  
+  r2s[ps.adj >= 0.05] <- ""
+  
+  rownames(r2s) <- rownames(ps)
+  colnames(r2s) <- colnames(ps)
+  
+  # Also set as NA non-significant ps.adj
+  ps.adj[ps.adj >= 0.05] <- NA
+  ps.adj.log <- -log10(ps.adj)
+  
+  rownames(ps.adj.log) <- rownames(ps)
+  colnames(ps.adj.log) <- colnames(ps)
+  
+  
+  # Transform for plotting
+  ps.adj.log <- ps.adj.log %>%
+    tibble::as_tibble() %>%
+    tibble::rowid_to_column(var = "PC") %>%
+    dplyr::mutate(PC = paste0("PC", PC)) %>%
+    tidyr::pivot_longer(!PC, names_to = "vars", values_to = "fdr")
+  
+  
+  # Transform for plotting
+  r2s <- r2s %>%
+    tibble::as_tibble() %>%
+    tibble::rowid_to_column(var = "PC") %>%
+    dplyr::mutate(PC = paste0("PC", PC)) %>%
+    tidyr::pivot_longer(!PC, names_to = "vars", values_to = "r2s")
+  
+  
+  # Merge both FDR and R2 to make plot
+  ff <- r2s %>%
+    dplyr::left_join(ps.adj.log, by = c("PC", "vars")) %>%
+    dplyr::mutate(PC = forcats::fct_reorder(PC, readr::parse_number(PC), .desc = TRUE))
+  
+  # Plot
+  
+  fig <- ggplot2::ggplot(ff, ggplot2::aes(x = vars, y = PC, fill = fdr)) +
+    ggplot2::geom_tile() +
+    ggplot2::geom_text(ggplot2::aes(label = r2s)) +
+    ggplot2::scale_fill_continuous(low = "thistle2",
+                                   high = "darkred",
+                                   guide = "colorbar",
+                                   na.value="white") +
+    ggplot2::theme_bw() +
+    ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(angle = 90)) +
+    ggplot2::labs(x = "",
+                  y = "",
+                  fill = "-log10 (FDR)",
+                  caption = "Variables and PCs (FDR < 0.05)")
+  
+  return(fig)
+  
+}
+
+
+#' Barplot for proteomics data
+#'
+#' @description `prot_barplot()` creates barplots of proteomics data
+#'
+#' @param df Dataframe to be plotted
+#' @param metadata Dataframe with associated metadata
+#' @param fill String with variable name to be used as filling/grouping variable
+#'
+#' @returns A ggplot2 object
+#' @export prot_barplot
+prot_barplot <- function(df, metadata, fill = "Condition"){
+  
+  reporter_names_clean <- gsub(" ", ".", metadata$key)
+  
+  df_plot <- df %>%
+    dplyr::select(
+      Protein.IDs,
+      dplyr::any_of(reporter_names_clean)
+    ) %>%
+    tidyr::pivot_longer(!Protein.IDs, names_to = "key", values_to = "vals") %>%
+    dplyr::left_join(metadata, by = "key") %>%
+    dplyr::select(
+      key,
+      vals,
+      Condition,
+      BioReplicate,
+      Mixture,
+      tidyselect::all_of(fill)
+    ) %>%
+    dplyr::filter(!is.na(vals)) %>%
+    dplyr::group_by(BioReplicate, .data[[fill]]) %>%
+    dplyr::count() %>%
+    ggplot2::ggplot() +
+    ggplot2::geom_bar(ggplot2::aes(reorder(BioReplicate, n), n, fill = .data[[fill]]),
+                      stat = "identity", color = "black") +
+    ggplot2::geom_text(ggplot2::aes(reorder(BioReplicate, n), n, label = n),
+                       hjust = 1.1, angle = 90) +
+    ggplot2::xlab("Sample") +
+    ggplot2::ylab("Count") +
+    ggplot2::ggtitle("Number of proteins per sample") +
+    ggplot2::theme_classic() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
+    ggsci::scale_fill_npg()
+  
+  return(df_plot)
   
 }
