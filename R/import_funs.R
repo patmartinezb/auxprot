@@ -468,7 +468,7 @@ process_fp <- function(raw, metadata){
         ) %>%  # Transform to NAs
         dplyr::rename(Protein.IDs = Protein.ID) %>%
         dplyr::select(Protein.IDs,
-                      dplyr::any_of({{ reporter_names_clean }}))
+                      {{ reporter_names_clean }})
     }
     
     if (all(sapply(df[, reporter_names_clean], function(x) class(x) %in% c("integer","numeric", "double")))){
@@ -510,7 +510,9 @@ process_other <- function(raw, metadata){
   
   # Clean raw data colnames
   raw <- raw %>%
-    dplyr::rename_all(make.names)
+    dplyr::rename_with(.,
+                       ~ make.names(.),
+                       dplyr::everything())
   
   # Clean reporter names
   reporter_names_clean <- make.names(metadata$key)
