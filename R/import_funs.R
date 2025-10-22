@@ -11,13 +11,16 @@
 #'   their extension
 #' @param metadata Dataframe with associated metadata
 #' @param type Either "psm" or "protein", indicating the level of the input data
-#'   - only relevant if the input is several files, if only one file, then NULL
+#'   - only relevant if the input comprises several files, if only one file, then NULL
 #' @param org Organism - only relevant if the input is several files, if only
-#'   one file, then NULL
-#' @param tmt Either "tmt", "tmtpro" or "tmtpro0", indicating
+#'   one file, then NULL Input vector of length 1.
+#' @param tmt Indicates the type of TMT used, either `tmt`, `tmtpro` or
+#'   `tmtpro0`.
+#' @param use.unique Whether to use only unique peptides for quantification.
+#'   Default is FALSE.
 #' @param level Either "peptide" or "protein", indicating the desired
-#'   output-level data - only relevant if the input is several files, if only
-#'   one file, then NULL
+#'   output-level data - only relevant if the input comprises several files, if
+#'   only one file, then NULL
 #'
 #' @returns A dataframe at the complexity level specified by the user
 #' @export import
@@ -26,6 +29,7 @@ import <- function(input_file_name,
                    type = NULL,
                    org = NULL,
                    tmt = NULL,
+                   use.unique = FALSE,
                    level = NULL){
   
   # Main import function
@@ -46,7 +50,7 @@ import <- function(input_file_name,
     
     # Imports several files - .txt or .tsv, as yielded by FragPipe
     
-    ext <- import_several(input_file_name, metadata, type, org, tmt, level)
+    ext <- import_several(input_file_name, metadata, type, org, tmt, use.unique, level)
     
   }
 }
@@ -142,8 +146,13 @@ extract_protein_tsv <- function(input_file_paths,
   
   # Reads file and selects variables of interest
   
-  df <- vroom::vroom(input_file_paths, delim = "\t") %>%
-    dplyr::rename_all(make.names) %>%
+  df <- data.table::fread(input_file_paths, 
+                          sep = "\t", 
+                          header = T, 
+                          na.strings = "NA") %>%
+    dplyr::rename_with(.,
+                       ~ make.names(.),
+                       dplyr::everything()) %>%
     dplyr::filter(!grepl("contam", Protein)) %>% # Removes contaminants
     type.convert(as.is = TRUE)
   
@@ -175,11 +184,12 @@ extract_protein_tsv <- function(input_file_paths,
     
     df <- df %>%
       dplyr::select(Protein.ID,
-                    tidyselect::matches(!!names))
+                    tidyselect::any_of(names))
     
   }
   
   return(df)
+  
 }
 
 
@@ -188,6 +198,7 @@ import_several <- function(input_file_paths,
                            type = c("psm", "protein"),
                            org,
                            tmt,
+                           use.unique,
                            level = c("peptide", "protein")){
   
   # Recursively imports files and outputs a single dataset
@@ -196,18 +207,35 @@ import_several <- function(input_file_paths,
     
     if (type == "psm"){
       
-      ext <- input_file_paths |>
+      ext0 <- input_file_paths |>
+        purrr::set_names() |>
         purrr::map(extract_protein_tsv, names = metadata$key, type = type) |>
-        purrr::map(auxprot::tmt_integrator, metadata, org, tmt) |>
-        purrr::modify_depth( 1, level) |>
-        purrr::reduce(dplyr::full_join, by = c("Protein.ID",
-                                               "Index",
-                                               "Gene",
-                                               "Charge",
-                                               "Protein.Description",
-                                               "Peptide.Length",
-                                               "Protein.Start",
-                                               "Protein.End"))
+        purrr::map(tmt_integrator, metadata, org, tmt, use.unique)
+      
+      if (level == "peptide"){
+        
+        ext <- ext0 |>
+          purrr::modify_depth( 1, level) |>
+          purrr::map(dplyr::select, !c(Charge, n_psm, Is.Unique)) |>
+          purrr::reduce(dplyr::full_join, by = c("Protein.ID",
+                                                 "Index",
+                                                 "Gene",
+                                                 "Charge",
+                                                 "Protein.Description",
+                                                 "Peptide.Length",
+                                                 "Protein.Start",
+                                                 "Protein.End"))
+        
+      } else {
+        
+        ext <- ext0 |>
+          purrr::modify_depth(1, level) |>
+          purrr::map(dplyr::select, !c(n_peptides:n_psm)) |>
+          purrr::reduce(dplyr::full_join, by = c("Index",
+                                                 "Gene",
+                                                 "Protein.Description"))
+        
+      }
       
     } else {
       
@@ -218,7 +246,9 @@ import_several <- function(input_file_paths,
     }
     
     ext <- ext %>%
-      dplyr::rename_all(make.names)
+      dplyr::rename_with(.,
+                         ~ make.names(.),
+                         dplyr::everything())
     
     return(ext)
     
@@ -239,7 +269,9 @@ select_mq_vars <- function(raw, metadata, reporter_names, phospho = "no"){
   # Selects variables of interests from MQ output
   
   raw <- raw %>%
-    dplyr::rename_all(make.names) # clean colnames so that they match the metadata
+    dplyr::rename_with(.,
+                       ~ make.names(.),
+                       dplyr::everything()) # clean colnames so that they match the metadata
   
   if (phospho == "yes"){
     # Phospho
@@ -404,7 +436,9 @@ process_fp <- function(raw, metadata){
   
   # Clean raw data colnames
   raw <- raw %>%
-    dplyr::rename_all(make.names)
+    dplyr::rename_with(.,
+                       ~ make.names(.),
+                       dplyr::everything())
   
   # Clean reporter names
   reporter_names_clean <- make.names(metadata$key)
@@ -434,7 +468,7 @@ process_fp <- function(raw, metadata){
         ) %>%  # Transform to NAs
         dplyr::rename(Protein.IDs = Protein.ID) %>%
         dplyr::select(Protein.IDs,
-                      dplyr::matches({{ reporter_names_clean }}))
+                      dplyr::any_of({{ reporter_names_clean }}))
     }
     
     if (all(sapply(df[, reporter_names_clean], function(x) class(x) %in% c("integer","numeric", "double")))){
