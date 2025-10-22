@@ -14,6 +14,7 @@
 #'   to.
 #' @param tmt Input vector of length 1. Indicates the type of TMT used, either
 #'   `tmt`, `tmtpro` or `tmtpro0`.
+#' @param use.unique Whether to use only unique peptides for quantification. Default is FALSE.
 #' @param purity_thr Numeric vector of length 1. Indicates purity threshold.
 #'   Default is 0.5 (50%).
 #' @param pep_prob_thr Numeric vector of length 1. Indicates peptide probability
@@ -29,6 +30,7 @@ tmt_integrator <- function(psm,
                            metadata, 
                            org, 
                            tmt,
+                           use.unique = FALSE,
                            purity_thr = 0.5,
                            pep_prob_thr = 0.9,
                            sum_ms2_int_thr = 0.05){
@@ -118,6 +120,19 @@ tmt_integrator <- function(psm,
   
   cat(nrow(psm3) - nrow(psm4), "PSMs were not TMT labeled.\n")
   
+  # 6. Use only unique peptides (optional)
+  
+  if (use.unique == T){
+    
+    cat(nrow(psm4) - nrow(filter(psm4, Is.Unique == TRUE)),
+        "PSMs are not unique. \n")
+    
+    psm4 <- psm4 %>% 
+      filter(Is.Unique == TRUE)
+    
+  }
+  
+  # Final numbers
   cat("Number of peptides after filtering:",
       length(unique(psm4$Peptide)), "peptides.\n")
   
