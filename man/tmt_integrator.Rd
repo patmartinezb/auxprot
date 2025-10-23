@@ -9,6 +9,7 @@ tmt_integrator(
   metadata,
   org,
   tmt,
+  use.unique = FALSE,
   purity_thr = 0.5,
   pep_prob_thr = 0.9,
   sum_ms2_int_thr = 0.05
@@ -24,6 +25,8 @@ to.}
 
 \item{tmt}{Input vector of length 1. Indicates the type of TMT used, either
 \code{tmt}, \code{tmtpro} or \code{tmtpro0}.}
+
+\item{use.unique}{Whether to use only unique peptides for quantification. Default is FALSE.}
 
 \item{purity_thr}{Numeric vector of length 1. Indicates purity threshold.
 Default is 0.5 (50\%).}

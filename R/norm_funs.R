@@ -138,7 +138,7 @@ irs_norm <- function(df, meta, tmm = TRUE){
         type_ref = "sample"
         
         name_ref = unique(gsub("(Ref|Norm)[0-9]+_", "", ref_names))
-        # Note: this works okay if it is always the same sample (which it sould be)
+        # Note: this works okay if it is always the same sample (which it should be)
       }
     }
     
@@ -155,7 +155,7 @@ irs_norm <- function(df, meta, tmm = TRUE){
                             values_to = "vals") %>%
         dplyr::left_join(meta, by = "key") %>%
         dplyr::group_by(Mixture, Protein.IDs) %>%
-        dplyr::summarise(mean = exp(mean(log(vals))),
+        dplyr::summarise(mean = exp(mean(log(vals), na.rm = T)),
                          .groups = "drop") %>% # Calculate the geometric mean of each group of refs
         tidyr::pivot_wider(names_from = Mixture,
                            values_from = mean)
@@ -167,7 +167,7 @@ irs_norm <- function(df, meta, tmm = TRUE){
         df <- df %>%
           dplyr::select(-tidyselect::any_of(ref_names))
         
-        meta <- transform_meta_irs(meta)
+        # meta <- transform_meta_irs(meta)
       }
       
       
@@ -222,9 +222,15 @@ irs_norm <- function(df, meta, tmm = TRUE){
   
   # Common to everything: calculate IRS factors
   irs_factors <- irs_channels %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(geomean = exp(mean(log(dplyr::c_across(dplyr::starts_with("Mixture"))),
-                                     na.rm = TRUE))) %>% # Across proteins calculate geometric mean
+    irs_channels %>%
+    tidyr::pivot_longer(cols = tidyselect::any_of(meta$Mixture),
+                        names_to = "Mixture",
+                        values_to = "vals") %>%
+    group_by(Protein.IDs) %>%
+    dplyr::mutate(geomean = exp(mean(log(vals), na.rm = T))) %>% # Across proteins calculate geometric mean
+    ungroup() %>% 
+    tidyr::pivot_wider(names_from = Mixture,
+                       values_from = vals) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.numeric), ~ geomean / .x)) %>%
     dplyr::select(-geomean) %>%
     tidyr::pivot_longer(!Protein.IDs,
@@ -252,7 +258,7 @@ irs_norm <- function(df, meta, tmm = TRUE){
   
   if(exists("type_ref")){ # if one sample is repeated in every tmt as ref channel
     
-    #   # instead of calculating the median of ref channels before the actual irs normalization, I apply the normalization to all of them, as if they were regular sample channels, and then calculate the median
+    # instead of calculating the median of ref channels before the actual irs normalization, I apply the normalization to all of them, as if they were regular sample channels, and then calculate the median
     
     df_irs <- df_irs %>%
       dplyr::rowwise() %>% # calculate median of all ref samples
