@@ -252,10 +252,14 @@ complex_model_matrix <- function(df.comp, comp, comp.v, meta, covars = NULL){
   
   # Clean colnames
   colnames(mod) <- gsub("[()]", "", colnames(mod))
-  colnames(mod) <- gsub("Condition", "", colnames(mod))
+  colnames(mod) <- gsub(grouping.var, "", colnames(mod))
   
-  colnames(mod) <- gsub('\\B([[:upper:]])', ' \\1', colnames(mod))
-  colnames(mod) <- stringr::word(colnames(mod), -1) # safer to get the last word, instead of removing the first (there could be more than one)
+  if (!is.null(covars)){
+    colnames(mod) <- gsub(paste(covars, collapse = "|"), "", colnames(mod))
+  }
+  
+  # colnames(mod) <- gsub('\\B([[:upper:]])', ' \\1', colnames(mod))
+  # colnames(mod) <- stringr::word(colnames(mod), -1) # safer to get the last word, instead of removing the first (there could be more than one)
   # colnames(mod) <- stringr::str_remove(colnames(mod), '(\\w+\\s+){1}') # removes the first word
   
   return(mod)
