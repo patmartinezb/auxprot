@@ -10,6 +10,7 @@ import(
   type = NULL,
   org = NULL,
   tmt = NULL,
+  use.unique = FALSE,
   level = NULL
 )
 }
@@ -21,17 +22,21 @@ their extension}
 
 \item{type}{Either "psm" or "protein", indicating the level of the input data
 \itemize{
-\item only relevant if the input is several files, if only one file, then NULL
+\item only relevant if the input comprises several files, if only one file, then NULL
 }}
 
 \item{org}{Organism - only relevant if the input is several files, if only
-one file, then NULL}
+one file, then NULL Input vector of length 1.}
 
-\item{tmt}{Either "tmt", "tmtpro" or "tmtpro0", indicating}
+\item{tmt}{Indicates the type of TMT used, either \code{tmt}, \code{tmtpro} or
+\code{tmtpro0}.}
+
+\item{use.unique}{Whether to use only unique peptides for quantification.
+Default is FALSE.}
 
 \item{level}{Either "peptide" or "protein", indicating the desired
-output-level data - only relevant if the input is several files, if only
-one file, then NULL}
+output-level data - only relevant if the input comprises several files, if
+only one file, then NULL}
 }
 \value{
 A dataframe at the complexity level specified by the user

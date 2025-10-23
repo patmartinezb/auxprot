@@ -13,6 +13,7 @@ Imports:
     BiocParallel,
     clusterProfiler,
     ComplexHeatmap,
+    data.table,
     dplyr,
     dynamicTreeCut,
     edgeR,
