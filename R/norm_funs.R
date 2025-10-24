@@ -222,7 +222,6 @@ irs_norm <- function(df, meta, tmm = TRUE){
   
   # Common to everything: calculate IRS factors
   irs_factors <- irs_channels %>%
-    irs_channels %>%
     tidyr::pivot_longer(cols = tidyselect::any_of(meta$Mixture),
                         names_to = "Mixture",
                         values_to = "vals") %>%
