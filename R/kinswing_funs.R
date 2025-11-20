@@ -157,10 +157,12 @@ kinswing_plot <- function(ks_list, coefs){
   }
   
   # extract color pallete for plotting - depends on the number of coefficients
-  if (length(coefs) > length(feathers::get_pal("oriole"))){
+  length.pal <- suppressWarnings(length(na.omit(unique(ggsci::pal_npg("nrc")(999)))))
+  
+  if (length(coefs) > length.pal){
     pal <- rainbow(length(coefs))
   } else {
-    pal <- sample(feathers::get_pal("oriole"))
+    pal <- sample(ggsci::pal_npg("nrc")(length.pal))[1:length(coefs)]
   }
   
   # create named vector: colors - coefs

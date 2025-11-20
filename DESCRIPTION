@@ -19,7 +19,6 @@ Imports:
     edgeR,
     exact2x2,
     factoextra,
-    feathers,
     forcats,
     GGally,
     ggplot2,

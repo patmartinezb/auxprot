@@ -404,10 +404,12 @@ heatmap_wgcna <- function(MEs2, meta, var){
   
   # Coloring legend
   
-  if (length(unique(meta$Condition)) > length(feathers::get_pal("oriole"))){
-    pal <- rainbow(length(coefs))
+  length.pal <- suppressWarnings(length(na.omit(unique(ggsci::pal_npg("nrc")(999)))))
+  
+  if (length(unique(meta$Condition)) > length.pal){
+    pal <- rainbow(length(unique(meta$Condition)))
   } else {
-    pal <- sample(feathers::get_pal("oriole"))
+    pal <- sample(ggsci::pal_npg("nrc")(length.pal))[1:length(unique(meta$Condition))]
   }
   
   # create named vector: colors - conditions
@@ -427,7 +429,7 @@ heatmap_wgcna <- function(MEs2, meta, var){
     
     for (i in 1:length(unique(meta[[var]]))){
       
-      col2[i] <- feathers::get_pal("cassowary")[i]
+      col2[i] <- ggsci::pal_npg("nrc")(length(unique(meta[[var]])))[i]
       names(col2)[i] <- unique(meta[[var]])[i]
       
     }
