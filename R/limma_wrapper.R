@@ -95,17 +95,17 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
     
     nam_l <- stringr::word(names(listy)[i], 1, sep = "-")
     
-    nam_match = paste0("\\b", nam_l, "\\b")
+    nam_match = paste0("^", nam_l, "$")
     
-    nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_match)]
+    nam <- colnames(SE_df)[sapply(colnames(SE_df), stringr::str_detect, nam_match)]
     
-    listy[[i]] <- listy[[i]] %>% 
+    listy[[i]] <- listy[[i]] %>%
       dplyr::left_join(dplyr::select(SE_df,
                                      Protein.IDs,
                                      dplyr::any_of(nam)),
-                       by = "Protein.IDs") %>% 
+                       by = "Protein.IDs") %>%
       dplyr::rename(logFC_SE = dplyr::any_of(nam)) %>%
-      dplyr::relocate(logFC_SE, .after = logFC) %>% 
+      dplyr::relocate(logFC_SE, .after = logFC) %>%
       dplyr::left_join(d_freedom,
                        by = "Protein.IDs")
     
