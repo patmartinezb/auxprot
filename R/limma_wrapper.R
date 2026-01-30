@@ -93,9 +93,11 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
   # Incorporate everything
   for (i in 1:length(listy)){
     
-    nam_l <- names(listy)[i]
+    nam_l <- stringr::word(names(listy)[i], 1, sep = "-")
     
-    nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_l)]
+    nam_match = paste0("\\b", nam_l, "\\b")
+    
+    nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_match)]
     
     listy[[i]] <- listy[[i]] %>% 
       dplyr::left_join(dplyr::select(SE_df,
@@ -366,7 +368,7 @@ get_res <- function(fit2, anova, coefs, Protein.IDs, id = NULL, phospho = "no"){
     res <- limma::topTable(fit2,
                            number = Inf,
                            genelist = as.data.frame(Protein.IDs),
-                           confint = T) %>%
+                           confint = TRUE) %>%
       dplyr::mutate(direction = dplyr::case_when(adj.P.Val < 0.05 ~ "DE",
                                                  TRUE ~ "No DE"),
                     log.adj.P.Val = -1 * log10(adj.P.Val))
@@ -377,7 +379,7 @@ get_res <- function(fit2, anova, coefs, Protein.IDs, id = NULL, phospho = "no"){
                            coef = coefs,
                            number = Inf,
                            genelist = as.data.frame(Protein.IDs),
-                           confint = T) %>%
+                           confint = TRUE) %>%
       dplyr::mutate(direction = dplyr::case_when((logFC > 0) & (adj.P.Val < 0.05) ~ "Up",
                                                  (logFC < 0) & (adj.P.Val < 0.05) ~ "Down",
                                                  TRUE ~ "No DE"),
@@ -478,7 +480,7 @@ check_log2 <- function(df, res_limma, metadata){
       
       foo3 <- gsub("\\[|\\]", "", foo3)
       
-      name_comp1 <- strsplit(foo3, "-", perl = T)
+      name_comp1 <- strsplit(foo3, "-", perl = TRUE)
       
       list_lfc <- list()
       
