@@ -93,11 +93,21 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
   # Incorporate everything
   for (i in 1:length(listy)){
     
-    nam_l <- stringr::word(names(listy)[i], 1, sep = "-")
-    
-    nam_match = paste0("^", nam_l, "$")
-    
-    nam <- colnames(SE_df)[sapply(colnames(SE_df), stringr::str_detect, nam_match)]
+    if ("Intercept" %in% colnames(SE_df)){
+      
+      nam_l <- stringr::word(names(listy)[i], 1, sep = "-")
+      
+      nam_match = paste0("^", nam_l, "$")
+      
+      nam <- colnames(SE_df)[sapply(colnames(SE_df), stringr::str_detect, nam_match)]
+      
+    } else {
+      
+      nam_l <- names(listy)[i]
+      
+      nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_l)]
+      
+    }
     
     listy[[i]] <- listy[[i]] %>%
       dplyr::left_join(dplyr::select(SE_df,
