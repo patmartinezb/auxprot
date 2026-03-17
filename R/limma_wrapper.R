@@ -105,7 +105,7 @@ limma_de <- function(df.norm, meta, comp, org, phospho = "no", covars = NULL, an
       
       nam_l <- names(listy)[i]
       
-      nam <- colnames(SE_df)[sapply(colnames(SE_df), grepl, nam_l)]
+      nam <- colnames(SE_df)[which(colnames(SE_df) == nam_l)]
       
     }
     
