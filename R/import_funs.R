@@ -449,7 +449,8 @@ process_fp <- function(raw, metadata, peptide = FALSE){
       
       df <- raw %>%
         dplyr::select(Index,
-                      {{ reporter_names_clean }}) %>%
+                      tidyselect::where(is.character),
+                      tidyselect::any_of(reporter_names_clean)) %>%
         dplyr::mutate(
           dplyr::across(tidyselect::where(is.numeric), ~ dplyr::na_if(.x, 0)),
           dplyr::across(tidyselect::where(is.numeric), ~ dplyr::na_if(.x, Inf)),
@@ -467,6 +468,10 @@ process_fp <- function(raw, metadata, peptide = FALSE){
           dplyr::rename(Protein.IDs = Index)
         
       }
+      
+      df <- df %>% 
+        dplyr::select(Protein.IDs,
+                      tidyselect::any_of(reporter_names_clean))
       
     } else {
       
