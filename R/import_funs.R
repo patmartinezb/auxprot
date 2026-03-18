@@ -429,7 +429,7 @@ process_mq <- function(raw, metadata, phospho = "no"){
 
 
 
-process_fp <- function(raw, metadata){
+process_fp <- function(raw, metadata, peptide = FALSE){
   
   # Main FragPipe processing
   
@@ -454,8 +454,19 @@ process_fp <- function(raw, metadata){
           dplyr::across(tidyselect::where(is.numeric), ~ dplyr::na_if(.x, 0)),
           dplyr::across(tidyselect::where(is.numeric), ~ dplyr::na_if(.x, Inf)),
           dplyr::across(tidyselect::where(is.numeric), ~ dplyr::na_if(.x, -Inf))
-        ) %>%  # Transform to NAs
-        dplyr::rename(Protein.IDs = Index)
+        ) # Transform to NAs
+      
+      if (peptide == TRUE){
+        
+        df <- df %>% 
+          tidyr::unite("Protein.IDs", c(Protein.ID, Index), sep = "_")
+        
+      } else {
+        
+        df <- df %>%
+          dplyr::rename(Protein.IDs = Index)
+        
+      }
       
     } else {
       
@@ -566,16 +577,18 @@ process_other <- function(raw, metadata){
 #' @param metadata Dataframe with the corresponding metadata.
 #' @param phospho TRUE or FALSE (default), whether `raw` is a phosphoproteomic
 #'   data matrix.
+#' @param peptide TRUE or FALSE (default), whether the input dataframe is data
+#'   at the peptide- or protein-level, respectively.
 #'
 #' @returns A dataframe with the proteomic data ready to work with.
 #' @export process_raw
-process_raw <- function(software, raw, metadata, phospho = FALSE){
+process_raw <- function(software, raw, metadata, phospho = FALSE, peptide = FALSE){
   
   # Depending on the software of origin, use the corresponding function for processing
   
   switch(software,
          "mq" = process_mq(raw, metadata, phospho), # MaxQuant
-         "fp" = process_fp(raw, metadata), # FragPipe
+         "fp" = process_fp(raw, metadata, peptide), # FragPipe
          "other" = process_other(raw, metadata)
   )
   
