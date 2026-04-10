@@ -150,6 +150,7 @@ extract_protein_tsv <- function(input_file_paths,
                           sep = "\t", 
                           header = T, 
                           na.strings = "NA") %>%
+    dplyr::select(-ends_with("NA")) %>%
     dplyr::rename_with(.,
                        ~ make.names(.),
                        dplyr::everything()) %>%
