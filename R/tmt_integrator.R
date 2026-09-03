@@ -52,7 +52,7 @@ tmt_integrator <- function(psm,
   
   # 0. Initial transformation and filtering for contaminants of PSM data
   psm <- psm %>% 
-    tibble::as_tibble(.name_repair = make.names) %>% # make.names() preserves the sample names as in metadata
+    tibble::as_tibble(.name_repair = ~ make.names(.x, unique = TRUE)) %>% # make.names() preserves the sample names as in metadata
     dplyr::rename_with(., # name fix for fragpipe v23
                        ~ gsub("Intensity.", "", .x),
                        dplyr::starts_with("Intensity.")) %>%
@@ -64,6 +64,7 @@ tmt_integrator <- function(psm,
                                                 Assigned.Modifications),
                   Assigned.Modifications = gsub("\\.", "_", Assigned.Modifications),
                   organism = sub('.*\\_', '', Protein)) %>%  
+    dplyr::filter_out(Is.Decoy == TRUE) %>%
     dplyr::filter(organism %in% toupper(org)) # remove contaminants from other species
   
   if (isTRUE(astral)){
